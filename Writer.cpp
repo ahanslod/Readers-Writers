@@ -4,15 +4,18 @@
 #include <time.h>
 #include "Blockable.h"
 #include <ctime>
+#include "Semaphore.h"
 using namespace std;
 
+// Initialize two semaphores
+Semaphore s1("sOne", 1, true);
+Semaphore s2("sTwo", 1, true);
 
 struct MyShared {
 	int threadID;
 	int reportID;
-	time_t elapsedTime;
+	int elapsedTime;
 	bool flag;
-	int delay;
 };
 
 class WriterThread : public Thread {
@@ -30,18 +33,18 @@ public:
 		Shared<MyShared> shared("sharedMemory");
 
 		// Initialize values
-		shared->reportID = 0;
+		int reportID = 1;
 
 
 		while (true)
 		{
-			time_t epoch = time(NULL);
+			time_t currentTime = time(NULL);
 			sleep(delay);
-			//write to shared memory
+			s1.Wait();
 			shared->threadID = threadNum;
-			shared->reportID++;
-			shared->elapsedTime = time(NULL) - epoch;
-			shared->delay = delay;
+			shared->reportID = reportID++;
+			shared->elapsedTime = time(NULL) - currentTime;
+			s2.Signal();
 
 			if (flag) {//Exit loop to end the thread
 				shared->flag = flag;
@@ -67,6 +70,7 @@ int main(void)
 	WriterThread* thread;
 
 	while (input != "no") {
+		//create thread using user input ....
 		cout << "Would you like to create a writer thread?" << endl;
 		cin >> input;
 
