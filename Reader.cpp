@@ -16,7 +16,7 @@ int main(void)
 {
 	cout << "I am a reader" << endl;
 	Shared<MyShared> shared("sharedMemory");
-	MyShared *threadValues = shared.get();
+	MyShared* threadValues = shared.get();
 
 	time_t currentTime;
 

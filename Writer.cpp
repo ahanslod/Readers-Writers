@@ -7,7 +7,7 @@
 using namespace std;
 
 
-struct MyShared{
+struct MyShared {
 	int threadID;
 	int reportID;
 	time_t elapsedTime;
@@ -37,7 +37,6 @@ public:
 		{
 			time_t epoch = time(NULL);
 			sleep(delay);
-			//time_t currentTime;
 			//write to shared memory
 			shared->threadID = threadNum;
 			shared->reportID++;
@@ -59,29 +58,32 @@ int main(void)
 	string input = "";
 	int delay;
 	int threadCount = 1;
-	
-	Shared<MyShared> shared("sharedMemory", true); //This is the owner of sharedMamory
+
+	Shared<MyShared> shared("sharedMemory", true);
+	vector<WriterThread*> threads;
 
 	cout << "I am a Writer" << endl;
 
-	WriterThread *thread1;
+	WriterThread* thread;
 
 	while (input != "no") {
-		//create thread using user input
 		cout << "Would you like to create a writer thread?" << endl;
 		cin >> input;
 
 		if (input == "yes") {
 			cout << "What is the delay time for this thread?" << endl;
 			cin >> delay;
-			thread1 = new WriterThread(threadCount++);
-			thread1->flag = false;
-			thread1->delay = delay;
 
+			thread = new WriterThread(threadCount++);
+			thread->flag = false;
+			thread->delay = delay;
+			threads.push_back(thread);
 		}
 		else if (input == "no") {
-			thread1->flag = true;
-			delete thread1;
+			for (int i = 0; i < threads.size(); i++) {
+				threads[i]->flag = true;
+				delete threads[i];
+			}
 		}
 	}
 }
